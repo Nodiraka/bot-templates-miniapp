@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shablon Tanlash</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 16px;
+            padding-bottom: 20px;
+        }
+        
+        .header { 
+            text-align: center; 
+            margin-bottom: 20px;
+            position: sticky;
+            top: 0;
+            background: var(--tg-theme-bg-color, #ffffff);
+            padding: 12px 0;
+            z-index: 10;
+        }
+        .header h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+        .header p { font-size: 13px; opacity: 0.6; }
+        
+        .back-btn {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            background: var(--tg-theme-button-color, #0088cc);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        .back-btn.visible { display: block; }
+        .back-btn:active { transform: scale(0.95); }
+        
+        .categories { display: grid; gap: 12px; margin-top: 60px; }
+        .category-card {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .category-card:active { transform: scale(0.98); }
+        .category-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+        .category-count { font-size: 12px; opacity: 0.6; margin-top: 8px; }
+        
+        .templates-section { margin-top: 60px; display: none; }
+        .templates-section.visible { display: block; }
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        @media (max-width: 640px) {
+            .templates-grid { grid-template-columns: 1fr; }
+        }
+        
+        .template-card {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            border: 3px solid transparent;
+            cursor: pointer;
+            position: relative;
+        }
+        .template-card.selected {
+            border-color: var(--tg-theme-button-color, #0088cc);
+            box-shadow: 0 4px 12px rgba(0,136,204,0.3);
+            transform: scale(1.02);
+        }
+        .template-card.selected::after {
+            content: "✓";
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--tg-theme-button-color, #0088cc);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
+        .template-image-wrapper {
+            width: 100%;
+            height: 140px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .template-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+        }
+        .zoom-icon {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .template-info { padding: 12px; }
+        .template-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            line-height: 1.3;
+            min-height: 36px;
+        }
+        .template-meta { 
+            font-size: 11px; 
+            opacity: 0.6;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal.visible { display: flex; }
+        .modal-content {
+            max-width: 100%;
+            max-height: 100%;
+            position: relative;
+        }
+        .modal-image {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: white;
+            color: black;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .sending-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .sending-overlay.visible { display: flex; }
+        .sending-message {
+            background: white;
+            padding: 24px 32px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <button id="backBtn" class="back-btn" onclick="goBack()">⬅️ Orqaga</button>
+    
+    <div class="header">
+        <h1 id="headerTitle">🎨 Shablon tanlash</h1>
+        <p id="headerSubtitle">Yo'nalishni tanlang</p>
+    </div>
+    
+    <div id="categoriesView" class="categories"></div>
+    <div id="templatesView" class="templates-section">
+        <div id="templatesGrid" class="templates-grid"></div>
+    </div>
+    
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <img id="modalImage" class="modal-image" src="" alt="Preview">
+        </div>
+    </div>
+    
+    <div id="sendingOverlay" class="sending-overlay">
+        <div class="sending-message">✓ Yuborilmoqda...</div>
+    </div>
+    
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand();
+        
+        const GITHUB_BASE = "https://nodiraka.github.io/bot-templates-miniapp/screenshots/";
+        
+        const SCREENSHOTS = {
+            "1 Biznes va moliya": {1:"1%20Screenshot%202026-02-19%20191555.png",2:"2%20Screenshot%202026-02-19%20191652.png",3:"3%20Screenshot%202026-02-19%20191736.png",4:"4%20Screenshot%202026-02-19%20191828.png",5:"5%20Screenshot%202026-02-19%20191930.png",6:"6%20Screenshot%202026-02-19%20192444.png",7:"7%20Screenshot%202026-02-19%20192638.png",8:"8%20Screenshot%202026-02-19%20192755.png",9:"9%20Screenshot%202026-02-19%20192834.png",10:"10%20Screenshot%202026-02-19%20192906.png"},
+            "2 talim va pedagogika": {1:"1_Screenshot%202026-02-19%20193014.png",2:"2_Screenshot%202026-02-19%20193040.png",3:"3_Screenshot%202026-02-19%20193103.png",4:"4_Screenshot%202026-02-19%20193127.png",5:"5_Screenshot%202026-02-19%20193148.png",6:"6_Screenshot%202026-02-19%20193213.png",7:"7_Screenshot%202026-02-19%20193234.png",8:"8_Screenshot%202026-02-19%20193256.png",9:"9_Screenshot%202026-02-19%20193321.png",10:"10_Screenshot%202026-02-19%20193344.png"},
+            "3 Texnologiya va IT": {1:"1_Screenshot%202026-02-19%20193615.png",2:"2_Screenshot%202026-02-19%20193636.png",3:"3_Screenshot%202026-02-19%20193655.png",4:"4_Screenshot%202026-02-19%20193713.png",5:"5_Screenshot%202026-02-19%20193744.png",6:"6_Screenshot%202026-02-19%20193818.png",7:"7_Screenshot%202026-02-19%20193839.png",8:"8_Screenshot%202026-02-19%20193904.png",9:"9_Screenshot%202026-02-19%20193926.png",10:"10_Screenshot%202026-02-19%20193948.png",11:"11_Screenshot%202026-02-19%20194016.png"},
+            "4 Tibbiyot va sog'liq": {1:"1_Screenshot%202026-02-19%20194650.png",2:"2_Screenshot%202026-02-19%20194716.png",3:"3_Screenshot%202026-02-19%20194739.png",4:"4_Screenshot%202026-02-19%20194806.png",5:"5_Screenshot%202026-02-19%20194826.png",6:"6_Screenshot%202026-02-19%20194850.png",7:"7_Screenshot%202026-02-19%20194913.png",8:"8_Screenshot%202026-02-19%20194941.png",9:"9_Screenshot%202026-02-19%20195003.png",10:"10_Screenshot%202026-02-19%20195037.png"},
+            "5 Adabiyot va tilshunoslik": {1:"1_Screenshot%202026-02-19%20200157.png",2:"2_Screenshot%202026-02-19%20200220.png",3:"3_Screenshot%202026-02-19%20200235.png",4:"4_Screenshot%202026-02-19%20200252.png",5:"5_Screenshot%202026-02-19%20200310.png",6:"6_Screenshot%202026-02-19%20200441.png",7:"7_Screenshot%202026-02-19%20200500.png",8:"8_Screenshot%202026-02-19%20200522.png",9:"9_Screenshot%202026-02-19%20200544.png",10:"10_Screenshot%202026-02-19%20200606.png"},
+            "6 Ijtimoiy fanlar": {1:"1_Screenshot%202026-02-19%20200706.png",2:"2_Screenshot%202026-02-19%20200725.png",3:"3_Screenshot%202026-02-19%20200747.png",4:"4_Screenshot%202026-02-19%20200812.png",5:"5_Screenshot%202026-02-19%20201052.png",6:"6_Screenshot%202026-02-19%20201114.png",7:"7_Screenshot%202026-02-19%20201134.png",8:"8_Screenshot%202026-02-19%20201154.png",9:"9_Screenshot%202026-02-19%20201222.png",10:"10_Screenshot%202026-02-19%20201238.png",11:"11_Screenshot%202026-02-19%20201257.png"},
+            "7 Fan va Tadqiqot": {1:"1_Screenshot%202026-02-19%20201422.png",2:"2_Screenshot%202026-02-19%20201446.png",3:"3_Screenshot%202026-02-19%20201514.png",4:"4_Screenshot%202026-02-19%20201532.png",5:"5_Screenshot%202026-02-19%20201552.png",6:"6_Screenshot%202026-02-19%20201610.png",7:"7_Screenshot%202026-02-19%20201636.png",8:"8_Screenshot%202026-02-19%20201652.png",9:"9_Screenshot%202026-02-19%20201708.png"},
+            "8 Tarix va Madaniyat": {1:"1_Screenshot%202026-02-19%20201821.png",2:"2_Screenshot%202026-02-19%20201833.png",3:"3_Screenshot%202026-02-19%20201854.png",4:"4_Screenshot%202026-02-19%20201908.png",5:"5_Screenshot%202026-02-19%20201924.png",6:"6_Screenshot%202026-02-19%20201944.png",7:"7_Screenshot%202026-02-19%20202008.png",8:"8_Screenshot%202026-02-19%20202026.png",9:"9_Screenshot%202026-02-19%20202049.png",10:"10_Screenshot%202026-02-19%20202108.png"},
+            "9 Tabiat va Ekologiya": {1:"1_Screenshot%202026-02-19%20202248.png",2:"2_Screenshot%202026-02-19%20202319.png",3:"3_Screenshot%202026-02-19%20202333.png",4:"4_Screenshot%202026-02-19%20202423.png",5:"5_Screenshot%202026-02-19%20202440.png",6:"6_Screenshot%202026-02-19%20202501.png",7:"7_Screenshot%202026-02-19%20202528.png",8:"8_Screenshot%202026-02-19%20202547.png",9:"9_Screenshot%202026-02-19%20202607.png",10:"10_Screenshot%202026-02-19%20202624.png"},
+            "10 Kreativ va Universal": {1:"1_Screenshot%202026-02-19%20202855.png",2:"2_Screenshot%202026-02-19%20202909.png",3:"3_Screenshot%202026-02-19%20202922.png",4:"4_Screenshot%202026-02-19%20202938.png",5:"5_Screenshot%202026-02-19%20203003.png",6:"6_Screenshot%202026-02-19%20203020.png",7:"7_Screenshot%202026-02-19%20203034.png",8:"8_Screenshot%202026-02-19%20203047.png",9:"9_Screenshot%202026-02-19%20203100.png",10:"10_Screenshot%202026-02-19%20203119.png"}
+        };
+        
+        const CATEGORIES = {
+            "1_biznes_moliya": { name_uz: "💼 Biznes va Moliya", folder: "1 Biznes va moliya", count: 10 },
+            "2_talim_pedagogika": { name_uz: "🎓 Ta'lim va Pedagogika", folder: "2 talim va pedagogika", count: 10 },
+            "3_texnologiya_it": { name_uz: "💻 Texnologiya va IT", folder: "3 Texnologiya va IT", count: 11 },
+            "4_tibbiyot_soglik": { name_uz: "🏥 Tibbiyot va Sog'liq", folder: "4 Tibbiyot va sog'liq", count: 10 },
+            "5_adabiyot_tilshunoslik": { name_uz: "📚 Adabiyot va Tilshunoslik", folder: "5 Adabiyot va tilshunoslik", count: 10 },
+            "6_ijtimoiy_fanlar": { name_uz: "👥 Ijtimoiy fanlar", folder: "6 Ijtimoiy fanlar", count: 11 },
+            "7_fan_tadqiqot": { name_uz: "🔬 Fan va Tadqiqot", folder: "7 Fan va Tadqiqot", count: 9 },
+            "8_tarix_madaniyat": { name_uz: "📜 Tarix va Madaniyat", folder: "8 Tarix va Madaniyat", count: 10 },
+            "9_tabiat_ekologiya": { name_uz: "🌿 Tabiat va Ekologiya", folder: "9 Tabiat va Ekologiya", count: 10 },
+            "10_kreativ_universal": { name_uz: "🎨 Kreativ va Universal", folder: "10 Kreativ va Universal", count: 10 }
+        };
+        
+        let currentCategory = null;
+        
+        function renderCategories() {
+            const container = document.getElementById('categoriesView');
+            container.innerHTML = '';
+            
+            Object.keys(CATEGORIES).forEach(key => {
+                const cat = CATEGORIES[key];
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.onclick = () => selectCategory(key);
+                card.innerHTML = `
+                    <div class="category-title">${cat.name_uz}</div>
+                    <div class="category-count">${cat.count} ta shablon</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        function selectCategory(key) {
+            currentCategory = key;
+            renderTemplates(key);
+            
+            document.getElementById('categoriesView').style.display = 'none';
+            document.getElementById('templatesView').classList.add('visible');
+            document.getElementById('backBtn').classList.add('visible');
+            
+            const cat = CATEGORIES[key];
+            document.getElementById('headerTitle').textContent = cat.name_uz;
+            document.getElementById('headerSubtitle').textContent = 'Shablonni tanlang';
+        }
+        
+        function renderTemplates(categoryKey) {
+            const container = document.getElementById('templatesGrid');
+            container.innerHTML = '';
+            
+            const cat = CATEGORIES[categoryKey];
+            const screenshots = SCREENSHOTS[cat.folder];
+            
+            for (let i = 1; i <= cat.count; i++) {
+                const card = document.createElement('div');
+                card.className = 'template-card';
+                card.onclick = () => selectTemplate(categoryKey, i, card);
+                
+                const imgUrl = GITHUB_BASE + encodeURIComponent(cat.folder) + "/" + screenshots[i];
+                
+                card.innerHTML = `
+                    <div class="template-image-wrapper" onclick="event.stopPropagation(); openModal('${imgUrl}')">
+                        <img src="${imgUrl}" class="template-image" alt="Shablon ${i}" loading="lazy">
+                        <div class="zoom-icon">🔍</div>
+                    </div>
+                    <div class="template-info">
+                        <div class="template-name">Shablon ${i}</div>
+                        <div class="template-meta">Bosing - tanlash</div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            }
+        }
+        
+        function selectTemplate(categoryKey, templateId, cardElement) {
+            console.log('Template selected:', categoryKey, templateId);
+            
+            // Show selection visually
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            cardElement.classList.add('selected');
+            
+            // Show sending overlay
+            document.getElementById('sendingOverlay').classList.add('visible');
+            
+            // Prepare data
+            const data = {
+                category: categoryKey,
+                id: templateId
+            };
+            
+            console.log('Sending data:', JSON.stringify(data));
+            
+            // Send after 500ms (to show selection)
+            setTimeout(() => {
+                try {
+                    tg.sendData(JSON.stringify(data));
+                    console.log('Data sent successfully');
+                    // Close will be called automatically by Telegram
+                } catch (error) {
+                    console.error('Error:', error);
+                    document.getElementById('sendingOverlay').classList.remove('visible');
+                    alert('Xatolik: ' + error.message);
+                }
+            }, 500);
+        }
+        
+        function goBack() {
+            document.getElementById('templatesView').classList.remove('visible');
+            document.getElementById('categoriesView').style.display = 'grid';
+            document.getElementById('backBtn').classList.remove('visible');
+            
+            document.getElementById('headerTitle').textContent = '🎨 Shablon tanlash';
+            document.getElementById('headerSubtitle').textContent = 'Yo\'nalishni tanlang';
+            
+            currentCategory = null;
+        }
+        
+        function openModal(imageUrl) {
+            document.getElementById('modalImage').src = imageUrl;
+            document.getElementById('imageModal').classList.add('visible');
+        }
+        
+        function closeModal() {
+            document.getElementById('imageModal').classList.remove('visible');
+        }
+        
+        // Initialize
+        renderCategories();
+    </script>
+</body>
+</html>
