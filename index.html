@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TEST Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--tg-theme-button-color, #0088cc);
+        }
+        
+        .info {
+            background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        
+        .info-item {
+            margin: 10px 0;
+            font-size: 14px;
+        }
+        
+        .test-button {
+            background: var(--tg-theme-button-color, #0088cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+        }
+        
+        .test-button:active {
+            transform: scale(0.98);
+        }
+        
+        .log {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .log-item {
+            margin: 5px 0;
+        }
+        
+        .success { color: #0f0; }
+        .error { color: #f00; }
+        .info-log { color: #ff0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 TEST Mini App</h1>
+        
+        <div class="info">
+            <div class="info-item"><strong>Status:</strong> <span id="status">Yuklanmoqda...</span></div>
+            <div class="info-item"><strong>Version:</strong> <span id="version">-</span></div>
+            <div class="info-item"><strong>Platform:</strong> <span id="platform">-</span></div>
+        </div>
+        
+        <button class="test-button" onclick="sendTestData()">
+            📤 TEST MA'LUMOT YUBORISH
+        </button>
+        
+        <button class="test-button" onclick="sendViaMainButton()">
+            🔵 MAIN BUTTON ORQALI
+        </button>
+        
+        <div class="log" id="logContainer"></div>
+    </div>
+    
+    <script>
+        const tg = window.Telegram.WebApp;
+        const logs = [];
+        
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            logs.push({ time: timestamp, msg: message, type });
+            updateLogDisplay();
+            console.log(`[${timestamp}] ${message}`);
+        }
+        
+        function updateLogDisplay() {
+            const container = document.getElementById('logContainer');
+            container.innerHTML = logs.map(log => 
+                `<div class="log-item ${log.type}-log">[${log.time}] ${log.msg}</div>`
+            ).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // Initialize
+        addLog('🚀 Mini App yuklanmoqda...', 'info');
+        
+        try {
+            tg.ready();
+            addLog('✅ tg.ready() - OK', 'success');
+        } catch (e) {
+            addLog('❌ tg.ready() - ERROR: ' + e.message, 'error');
+        }
+        
+        try {
+            tg.expand();
+            addLog('✅ tg.expand() - OK', 'success');
+        } catch (e) {
+            addLog('⚠️ tg.expand() - ERROR: ' + e.message, 'error');
+        }
+        
+        // Display info
+        document.getElementById('status').textContent = 'Tayyor ✅';
+        document.getElementById('version').textContent = tg.version || 'N/A';
+        document.getElementById('platform').textContent = tg.platform || 'N/A';
+        
+        addLog(`Platform: ${tg.platform}`, 'info');
+        addLog(`Version: ${tg.version}`, 'info');
+        addLog(`InitData: ${tg.initData ? 'Mavjud' : 'Yo\'q'}`, 'info');
+        
+        // MainButton setup
+        try {
+            tg.MainButton.setText("YUBORISH");
+            tg.MainButton.show();
+            tg.MainButton.onClick(sendViaMainButtonCallback);
+            addLog('✅ MainButton sozlandi', 'success');
+        } catch (e) {
+            addLog('❌ MainButton xatosi: ' + e.message, 'error');
+        }
+        
+        // Test data
+        const testData = {
+            category: "test_category",
+            id: 999,
+            test: true,
+            timestamp: Date.now()
+        };
+        
+        function sendTestData() {
+            addLog('📤 sendData() orqali yuborish...', 'info');
+            addLog('Data: ' + JSON.stringify(testData), 'info');
+            
+            try {
+                tg.sendData(JSON.stringify(testData));
+                addLog('✅ sendData() chaqirildi!', 'success');
+                
+                setTimeout(() => {
+                    addLog('🔄 Mini App yopilmoqda...', 'info');
+                    try {
+                        tg.close();
+                        addLog('✅ close() chaqirildi', 'success');
+                    } catch (e) {
+                        addLog('❌ close() xatosi: ' + e.message, 'error');
+                    }
+                }, 1000);
+                
+            } catch (e) {
+                addLog('❌ sendData() xatosi: ' + e.message, 'error');
+            }
+        }
+        
+        function sendViaMainButton() {
+            addLog('🔵 MainButton bosing...', 'info');
+            try {
+                tg.MainButton.showProgress();
+                setTimeout(() => {
+                    sendViaMainButtonCallback();
+                }, 500);
+            } catch (e) {
+                addLog('❌ MainButton xatosi: ' + e.message, 'error');
+            }
+        }
+        
+        function sendViaMainButtonCallback() {
+            addLog('📤 MainButton callback...', 'info');
+            addLog('Data: ' + JSON.stringify(testData), 'info');
+            
+            try {
+                tg.sendData(JSON.stringify(testData));
+                addLog('✅ sendData() chaqirildi!', 'success');
+                
+                setTimeout(() => {
+                    tg.MainButton.hideProgress();
+                    tg.close();
+                    addLog('✅ Yopildi', 'success');
+                }, 1000);
+                
+            } catch (e) {
+                addLog('❌ Xato: ' + e.message, 'error');
+                tg.MainButton.hideProgress();
+            }
+        }
+        
+        addLog('✅ Mini App tayyor!', 'success');
+    </script>
+</body>
+</html>
