@@ -7,7 +7,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: var(--tg-theme-bg-color, #ffffff);
@@ -16,40 +15,27 @@
             padding-bottom: 80px;
             min-height: 100vh;
         }
-
         .header {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             padding-top: 8px;
         }
-        .header h1 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        .header p {
-            font-size: 13px;
-            opacity: 0.55;
-        }
+        .header h1 { font-size: 18px; font-weight: 700; }
 
-        .form-group {
-            margin-bottom: 16px;
-        }
-
+        .form-group { margin-bottom: 14px; }
         .form-group label {
             display: block;
             font-size: 12px;
             font-weight: 600;
-            opacity: 0.6;
-            margin-bottom: 6px;
+            opacity: 0.55;
+            margin-bottom: 5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 13px 14px;
+            padding: 12px 14px;
             border: 1.5px solid var(--tg-theme-hint-color, #c0c0c0);
             border-radius: 10px;
             background: var(--tg-theme-secondary-bg-color, #f5f5f5);
@@ -60,19 +46,12 @@
             -webkit-appearance: none;
             appearance: none;
         }
-
         .form-group input:focus,
         .form-group select:focus {
             border-color: var(--tg-theme-button-color, #0088cc);
         }
-
-        .form-group input::placeholder {
-            opacity: 0.4;
-        }
-
-        .select-wrapper {
-            position: relative;
-        }
+        .form-group input::placeholder { opacity: 0.4; }
+        .select-wrapper { position: relative; }
         .select-wrapper::after {
             content: '▾';
             position: absolute;
@@ -83,38 +62,11 @@
             font-size: 16px;
             opacity: 0.5;
         }
-
-        .divider {
-            height: 1px;
-            background: var(--tg-theme-hint-color, #e0e0e0);
-            opacity: 0.3;
-            margin: 20px 0;
-        }
-
-        .section-title {
-            font-size: 13px;
-            font-weight: 700;
-            opacity: 0.5;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            margin-bottom: 14px;
-        }
-
-        .info-box {
-            background: var(--tg-theme-secondary-bg-color, #f0f4ff);
-            border-radius: 10px;
-            padding: 12px 14px;
-            font-size: 13px;
-            opacity: 0.8;
-            margin-bottom: 16px;
-            line-height: 1.5;
-        }
-
+        .row { display: flex; gap: 10px; }
+        .row .form-group { flex: 1; }
         .save-btn {
             position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            bottom: 0; left: 0; right: 0;
             padding: 14px 20px;
             background: var(--tg-theme-button-color, #0088cc);
             color: var(--tg-theme-button-text-color, #ffffff);
@@ -122,120 +74,83 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: opacity 0.2s;
             z-index: 100;
         }
         .save-btn:active { opacity: 0.85; }
-
         .footer-note {
             text-align: center;
             font-size: 12px;
-            opacity: 0.35;
-            margin-top: 20px;
-            padding-bottom: 10px;
-        }
-
-        .required-star {
-            color: #e53e3e;
-            margin-left: 2px;
+            opacity: 0.3;
+            margin-top: 16px;
         }
     </style>
 </head>
 <body>
 
 <div class="header">
-    <h1 id="page-title">📄 Hujjat Ma'lumotlari</h1>
-    <p id="page-subtitle">Quyidagi maydonlarni to'ldiring</p>
+    <h1 id="page-title">📝 Ma'lumotlar</h1>
 </div>
 
-<div class="section-title">Muallif ma'lumotlari</div>
-
 <div class="form-group">
-    <label>Muallif (Ism Familya) <span class="required-star">*</span></label>
-    <input type="text" id="author" placeholder="Ism Familya..." autocomplete="off">
-</div>
-
-<div class="divider"></div>
-<div class="section-title">O'quv muassasasi</div>
-
-<div class="form-group">
-    <label>Vazirlik nomi</label>
-    <input type="text" id="ministry" placeholder="O'ZBEKISTON RESPUBLIKASI OLIY TA'LIM..." autocomplete="off">
+    <label>Muallif (Ism Familya)</label>
+    <input type="text" id="author" placeholder="Nodir Karimov" autocomplete="off">
 </div>
 
 <div class="form-group">
     <label>Oliygoh nomi</label>
-    <input type="text" id="university" placeholder="Masalan: Toshkent Davlat Texnika Universiteti" autocomplete="off">
+    <input type="text" id="university" placeholder="Toshkent Davlat Texnika Universiteti" autocomplete="off">
 </div>
 
 <div class="form-group">
     <label>Yo'nalish</label>
-    <input type="text" id="direction" placeholder="Masalan: Kompyuter injiniringi" autocomplete="off">
+    <input type="text" id="direction" placeholder="Kompyuter injiniringi" autocomplete="off">
 </div>
 
-<div class="form-group">
-    <label>Kurs</label>
-    <div class="select-wrapper">
-        <select id="course">
-            <option value="">— Kursni tanlang —</option>
-            <option value="1">1-kurs</option>
-            <option value="2">2-kurs</option>
-            <option value="3">3-kurs</option>
-            <option value="4">4-kurs</option>
-            <option value="5">5-kurs</option>
-            <option value="6">6-kurs</option>
-        </select>
+<div class="row">
+    <div class="form-group">
+        <label>Kurs</label>
+        <div class="select-wrapper">
+            <select id="course">
+                <option value="">—</option>
+                <option value="1">1-kurs</option>
+                <option value="2">2-kurs</option>
+                <option value="3">3-kurs</option>
+                <option value="4">4-kurs</option>
+                <option value="5">5-kurs</option>
+                <option value="6">6-kurs</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <label>Til</label>
+        <div class="select-wrapper">
+            <select id="language">
+                <option value="uz">O'zbek</option>
+                <option value="ru">Русский</option>
+                <option value="en">English</option>
+            </select>
+        </div>
     </div>
 </div>
 
 <div class="form-group">
     <label>Fan nomi</label>
-    <input type="text" id="subject" placeholder="Masalan: Iqtisodiyot asoslari" autocomplete="off">
-</div>
-
-<div class="form-group">
-    <label>O'quv yili</label>
-    <div class="select-wrapper">
-        <select id="year">
-            <option value="2024-2025">2024-2025</option>
-            <option value="2025-2026" selected>2025-2026</option>
-            <option value="2026-2027">2026-2027</option>
-            <option value="2027-2028">2027-2028</option>
-        </select>
-    </div>
-</div>
-
-<div class="divider"></div>
-<div class="section-title">Til va hajm</div>
-
-<div class="form-group">
-    <label>Til</label>
-    <div class="select-wrapper">
-        <select id="language">
-            <option value="uz">O'zbekcha</option>
-            <option value="ru">Русский</option>
-            <option value="en">English</option>
-        </select>
-    </div>
+    <input type="text" id="subject" placeholder="Informatika" autocomplete="off">
 </div>
 
 <div class="form-group">
     <label>Sahifa miqdori</label>
     <div class="select-wrapper">
         <select id="pages">
-            <option value="10-15|3000">10-15 Sahifa (3,000 So'm)</option>
-            <option value="15-20|4000">15-20 Sahifa (4,000 So'm)</option>
-            <option value="20-25|5000">20-25 Sahifa (5,000 So'm)</option>
-            <option value="25-30|6000">25-30 Sahifa (6,000 So'm)</option>
-            <option value="30-35|6000">30-35 Sahifa (6,000 So'm)</option>
-            <option value="35-40|6000">35-40 Sahifa (6,000 So'm)</option>
-            <option value="40-45|7000">40-45 Sahifa (7,000 So'm)</option>
+            <option value="10-15|3000">10-15 Sahifa — 3,000 So'm</option>
+            <option value="15-20|4000">15-20 Sahifa — 4,000 So'm</option>
+            <option value="20-25|5000">20-25 Sahifa — 5,000 So'm</option>
+            <option value="25-30|6000">25-30 Sahifa — 6,000 So'm</option>
+            <option value="30-35|6000">30-35 Sahifa — 6,000 So'm</option>
+            <option value="35-40|6000">35-40 Sahifa — 6,000 So'm</option>
+            <option value="40-45|7000">40-45 Sahifa — 7,000 So'm</option>
         </select>
     </div>
-</div>
-
-<div class="info-box">
-    ℹ️ Muassasa ma'lumotlari kiritilmasa, muqova sahifasida ular ko'rsatilmaydi. Muallif majburiy.
 </div>
 
 <div class="footer-note">@slaydtopbot</div>
@@ -247,91 +162,59 @@
     tg.ready();
     tg.expand();
 
-    // URL parametridan tur olish (mustaqil_ish yoki referat)
     const urlParams = new URLSearchParams(window.location.search);
     const docType = urlParams.get('type') || 'mustaqil_ish';
     const userLang = urlParams.get('lang') || 'uz';
 
-    // Sahifa sarlavhasini o'zgartirish
-    if (docType === 'referat') {
-        document.getElementById('page-title').textContent = '📄 Referat Ma\'lumotlari';
-    } else {
-        document.getElementById('page-title').textContent = '📝 Mustaqil Ish Ma\'lumotlari';
-    }
+    document.getElementById('page-title').textContent =
+        docType === 'referat' ? '📄 Referat Ma\'lumotlari' : '📝 Mustaqil Ish Ma\'lumotlari';
 
-    // Til bo'yicha default til tanlash
     const langSelect = document.getElementById('language');
-    if (userLang === 'ru') langSelect.value = 'ru';
-    else if (userLang === 'en') langSelect.value = 'en';
-    else langSelect.value = 'uz';
+    langSelect.value = ['ru','en'].includes(userLang) ? userLang : 'uz';
 
-    // Saqlangan ma'lumotlarni yuklash (localStorage)
-    function loadSaved() {
-        try {
-            const saved = localStorage.getItem('essay_user_data');
-            if (saved) {
-                const data = JSON.parse(saved);
-                if (data.ministry) document.getElementById('ministry').value = data.ministry;
-                if (data.university) document.getElementById('university').value = data.university;
-                if (data.direction) document.getElementById('direction').value = data.direction;
-                if (data.course) document.getElementById('course').value = data.course;
-                if (data.subject) document.getElementById('subject').value = data.subject;
-                if (data.author) document.getElementById('author').value = data.author;
-                if (data.year) document.getElementById('year').value = data.year;
-                if (data.pages) document.getElementById('pages').value = data.pages;
-            }
-        } catch(e) {}
-    }
-    loadSaved();
+    // Saqlangan ma'lumotlarni yuklash
+    try {
+        const saved = JSON.parse(localStorage.getItem('essay_user_data') || '{}');
+        if (saved.author) document.getElementById('author').value = saved.author;
+        if (saved.university) document.getElementById('university').value = saved.university;
+        if (saved.direction) document.getElementById('direction').value = saved.direction;
+        if (saved.course) document.getElementById('course').value = saved.course;
+        if (saved.subject) document.getElementById('subject').value = saved.subject;
+        if (saved.pages) document.getElementById('pages').value = saved.pages;
+    } catch(e) {}
 
-    // Birinchi harfni katta qilish
-    function toTitleCase(str) {
-        if (!str) return str;
-        return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
-    // Har bir so'zning birinchi harfini katta qilish (ism familya uchun)
     function toNameCase(str) {
         if (!str) return str;
-        return str.split(' ').map(word =>
-            word ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : ''
-        ).join(' ');
+        return str.split(' ').map(w => w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : '').join(' ');
+    }
+    function toTitleCase(str) {
+        return str ? str[0].toUpperCase() + str.slice(1) : str;
     }
 
     function saveData() {
         const author = document.getElementById('author').value.trim();
-
-        if (!author) {
-            tg.showAlert('Ism Familyani kiriting!');
-            return;
-        }
-
-        const ministry = document.getElementById('ministry').value.trim();
         const university = document.getElementById('university').value.trim();
         const direction = document.getElementById('direction').value.trim();
         const course = document.getElementById('course').value;
         const subject = document.getElementById('subject').value.trim();
-        const year = document.getElementById('year').value;
         const language = document.getElementById('language').value;
         const pagesVal = document.getElementById('pages').value;
         const [pageRange, price] = pagesVal.split('|');
 
-        // Ma'lumotlarni saqlash (muassasa, yo'nalish, kurs - keyingi safar uchun)
-        const toSave = { ministry, university, direction, course, subject, author, year, pages: pagesVal };
+        // Saqlash
         try {
-            localStorage.setItem('essay_user_data', JSON.stringify(toSave));
+            localStorage.setItem('essay_user_data', JSON.stringify(
+                { author, university, direction, course, subject, pages: pagesVal }
+            ));
         } catch(e) {}
 
-        // Yuborish
         const data = {
             type: docType,
             author: toNameCase(author),
-            ministry: ministry ? toTitleCase(ministry) : '',
-            university: university ? toTitleCase(university) : '',
-            direction: direction ? toTitleCase(direction) : '',
+            university: toTitleCase(university),
+            direction: toTitleCase(direction),
             course: course || '',
-            subject: subject ? toTitleCase(subject) : '',
-            year: year,
+            subject: toTitleCase(subject),
             language: language,
             page_range: pageRange,
             price: parseInt(price)
@@ -340,10 +223,7 @@
         tg.sendData(JSON.stringify(data));
     }
 
-    // Tugma click handler
     document.getElementById('save-btn').addEventListener('click', saveData);
-
-    // Telegram MainButton ham ishlatish
     tg.MainButton.setText('Saqlash');
     tg.MainButton.show();
     tg.MainButton.onClick(saveData);
