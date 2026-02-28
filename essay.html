@@ -192,7 +192,7 @@
         return str ? str[0].toUpperCase() + str.slice(1) : str;
     }
 
-    document.getElementById('save-btn').addEventListener('click', function() {
+    function collectAndSend() {
         const author = document.getElementById('author').value.trim();
         const university = document.getElementById('university').value.trim();
         const direction = document.getElementById('direction').value.trim();
@@ -221,8 +221,62 @@
             price: parseInt(price)
         };
 
+        return data;
+    }
+
+    // Saqlash tugmasi bosilganda
+    document.getElementById('save-btn').addEventListener('click', function() {
+        const data = collectAndSend();
         tg.sendData(JSON.stringify(data));
         tg.close();
+    });
+
+    // Mini-app yopilganda (saqlash bosilmasa ham) ma'lumotlarni yuborish
+    tg.onEvent('viewportChanged', function() {
+        // viewport o'zgarganda (yopilish oldidan) ma'lumotlarni localStorage ga saqlash
+        try {
+            const author = document.getElementById('author').value.trim();
+            const university = document.getElementById('university').value.trim();
+            const direction = document.getElementById('direction').value.trim();
+            const course = document.getElementById('course').value;
+            const subject = document.getElementById('subject').value.trim();
+            const pagesVal = document.getElementById('pages').value;
+            localStorage.setItem('essay_user_data', JSON.stringify(
+                { author, university, direction, course, subject, pages: pagesVal }
+            ));
+        } catch(e) {}
+    });
+
+    // Har bir input o'zgarganda localStorage ga saqlash
+    ['author','university','direction','subject'].forEach(id => {
+        document.getElementById(id).addEventListener('input', function() {
+            try {
+                const author = document.getElementById('author').value.trim();
+                const university = document.getElementById('university').value.trim();
+                const direction = document.getElementById('direction').value.trim();
+                const course = document.getElementById('course').value;
+                const subject = document.getElementById('subject').value.trim();
+                const pagesVal = document.getElementById('pages').value;
+                localStorage.setItem('essay_user_data', JSON.stringify(
+                    { author, university, direction, course, subject, pages: pagesVal }
+                ));
+            } catch(e) {}
+        });
+    });
+    ['course','language','pages'].forEach(id => {
+        document.getElementById(id).addEventListener('change', function() {
+            try {
+                const author = document.getElementById('author').value.trim();
+                const university = document.getElementById('university').value.trim();
+                const direction = document.getElementById('direction').value.trim();
+                const course = document.getElementById('course').value;
+                const subject = document.getElementById('subject').value.trim();
+                const pagesVal = document.getElementById('pages').value;
+                localStorage.setItem('essay_user_data', JSON.stringify(
+                    { author, university, direction, course, subject, pages: pagesVal }
+                ));
+            } catch(e) {}
+        });
     });
 </script>
 </body>
